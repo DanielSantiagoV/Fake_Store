@@ -48,3 +48,122 @@
                 </div>
             </div>
         </header>
+
+
+                <!-- ==================== CONTENEDOR DE VISTAS ==================== -->
+                <div id="views-container">
+                    <main id="products-view" class="view hidden">
+                        <div class="container">
+                            <h1 class="main-title">Products</h1>
+                            <div class="controls-container">
+                                <div class="filter-buttons-container"></div>
+                                <div class="sort-container"></div>
+                            </div>
+                            <div class="product-search-container">
+                                <i class="fa-solid fa-search"></i>
+                                <input type="text" id="product-search-input" placeholder="Search for products">
+                            </div>
+                            <h2 class="section-subtitle">Featured Products</h2>
+                            <div class="product-grid"></div>
+                        </div>
+                    </main>
+                    
+                    <div id="home-view" class="view active">
+                        <div class="container placeholder-view">
+                            <h1>Bienvenido a ShopSmart</h1>
+                            <p>Navega a la sección de productos para empezar a comprar.</p>
+                            <p><strong>Versión Simple:</strong> Solo funcionalidad de carrito sin sistema de pago.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="about-view" class="view hidden">
+                        <div class="container placeholder-view">
+                            <h1>Sobre Nosotros</h1>
+                            <p>Somos la mejor tienda falsa del mundo, construida para demostrar habilidades de desarrollo frontend.</p>
+                            <p><strong>Versión Simple:</strong> Sin sistema de pago integrado.</p>
+                        </div>
+                    </div>
+                    
+                    <div id="contact-view" class="view hidden">
+                        <div class="container placeholder-view">
+                            <h1>Contacto</h1>
+                            <p>Encuéntranos en GitHub.</p>
+                            <p><strong>Versión Simple:</strong> Solo funcionalidad de carrito.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Shopping Bag View (replaces checkout) -->
+                    <div id="shopping-bag-view" class="view hidden">
+                        <div class="shopping-bag-container">
+                            <div class="shopping-bag-header">
+                                <h1 class="shopping-bag-title">Shopping Bag</h1>
+                                <p class="shopping-bag-subtitle" id="bag-item-count">(0 items)</p>
+                            </div>
+                            
+                            <div class="shopping-bag-layout">
+                                <!-- Product List Section -->
+                                <div class="product-list-section">
+                                    <h2 class="product-list-title">Your Items</h2>
+                                    <div class="cart-items-container" id="shopping-bag-items"></div>
+                                </div>
+                                
+                                <!-- Order Summary Section -->
+                                <div class="payment-summary-section">
+                                    <h3 class="payment-summary-title">Order Summary</h3>
+                                    <div class="payment-summary-items">
+                                        <div class="summary-item">
+                                            <span class="summary-item-label">Subtotal</span>
+                                            <span class="summary-item-value" id="bag-subtotal">$0.00</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-item-label">Shipping</span>
+                                            <span class="summary-item-value">Free</span>
+                                        </div>
+                                        <div class="summary-item">
+                                            <span class="summary-item-label">Tax</span>
+                                            <span class="summary-item-value" id="bag-tax">$0.00</span>
+                                        </div>
+                                    </div>
+                                    <div class="summary-total">
+                                        <span class="summary-total-label">Total</span>
+                                        <span class="summary-total-value" id="bag-total">$0.00</span>
+                                    </div>
+                                    <button class="checkout-btn" id="continue-shopping-btn">
+                                        <i class="fa-solid fa-arrow-left"></i>
+                                        Continue Shopping
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <footer class="footer">
+                     <div class="footer-links">
+                        <a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Contact Us</a>
+                    </div>
+                    <p class="footer-copy">©2025 ShopSmart. All rights reserved. (Ecommerce Version)</p>
+                </footer>
+            </div>
+            
+            <!-- Cart Sidebar -->
+            <div class="cart-overlay"></div>
+            <aside class="cart-sidebar">
+                <header class="cart-header">
+                    <h3>Tu Carrito</h3>
+                    <button class="close-cart-btn">×</button>
+                </header>
+                <div class="cart-items-container"></div>
+                <footer class="cart-footer">
+                    <div class="cart-total">
+                        <span>Subtotal:</span>
+                        <span id="cart-subtotal-price">$0.00</span>
+                    </div>
+                    <button class="checkout-btn" id="view-bag-btn">View Shopping Bag</button>
+                </footer>
+            </aside>
+            
+            <div id="toast-container"></div>
+            <script src="/js/main-simple.js"></script>
+        </body>
+        </html> 
