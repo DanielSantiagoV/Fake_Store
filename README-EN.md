@@ -89,7 +89,7 @@ Proyect javascript/
 2. Open `index2.html` for the full shop with payment simulation
 3. Browse products, add to cart, and (in advanced version) checkout
 
-See [QUICK-START.md](./QUICK-START.md) for detailed steps.
+See [QUICK-START.md](./docs/QUICK-START.md) for detailed steps.
 
 ---
 

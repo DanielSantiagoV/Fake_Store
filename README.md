@@ -92,7 +92,7 @@ Proyect javascript/
 2. Abre `index2.html` para la tienda completa con simulación de pago
 3. Navega por productos, agrega al carrito y (en versión avanzada) finaliza la compra
 
-Ver [QUICK-START.md](./QUICK-START.md) para pasos detallados.
+Ver [QUICK-START.md](./docs/QUICK-START.md) para pasos detallados.
 
 ---
 
