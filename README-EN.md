@@ -1,4 +1,4 @@
-# 🛒 ShopSmart - E-commerce Web App
+# 🛒 ShopSmart - E-commerce Web Application
 
 <p align="center"> 
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5">
@@ -11,7 +11,7 @@
 
 ## 📝 Project Description
 
-ShopSmart is a modern, responsive e-commerce web application built with HTML5, CSS3, and vanilla JavaScript. It offers a seamless shopping experience with product browsing, filtering, cart management, and (in the advanced version) a payment simulation system. Designed for clarity, usability, and mobile-friendliness, ShopSmart is ideal for learning, prototyping, or as a foundation for real-world online stores.
+ShopSmart is a modern, responsive e-commerce web application built with HTML5, CSS3, and vanilla JavaScript. It offers a smooth shopping experience with product navigation, filtering, cart management, and (in the advanced version) a simulated payment system. Designed for clarity, usability, and mobile compatibility, ShopSmart is ideal for learning, prototyping, or as a foundation for real online stores. 🚀
 
 ### ✨ Main Features
 

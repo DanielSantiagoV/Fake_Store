@@ -67,4 +67,8 @@ logs
 
 # Temporary folders
 tmp/
-temp/ 
+temp/
+
+# Project specific ignores
+*.bak
+*.tmp 
