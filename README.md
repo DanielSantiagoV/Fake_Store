@@ -115,7 +115,7 @@ Ver [QUICK-START.md](./docs/QUICK-START.md) para pasos detallados.
 
 ### 🎨 Proceso de Diseño
 
-La maquetación inicial de ShopSmart se desarrolló siguiendo un proceso iterativo que incluyó bocetos, wireframes y mockups. Estas imágenes documentan la evolución del diseño desde el concepto inicial hasta la implementación final.
+La maquetación inicial de ShopSmart se desarrolló siguiendo un proceso iterativo que incluyó bocetos, wireframes y mockups. Estas imágenes documentan la evolución del diseño desde el concepto inicial hasta la implementación final. ✨
 
 ### 📸 Imágenes de Maquetación
 
