@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopSmart - Tienda Completa</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- ==================== HEADER FUNCIONAL ==================== -->
+        <header class="header">
+            <nav class="header-nav container">
+                <div class="nav-left">
+                    <a href="#" class="nav-logo" data-view="home-view">
+                        <i class="fa-solid fa-wallet"></i> ShopSmart
+                    </a>
+                    <div class="nav-links">
+                        <a href="#" class="active" data-view="home-view">Home</a>
+                        <a href="#" data-view="products-view">Products</a>
+                        <a href="#" data-view="about-view">About Us</a>
+                        <a href="#" data-view="contact-view">Contact</a>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <button class="cart-button-header" id="cart-toggle-btn">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                        <span class="cart-item-count">0</span>
+                    </button>
+                </div>
+            </nav>
+            
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="nav-links">
+                    <a href="#" class="active" data-view="home-view">Home</a>
+                    <a href="#" data-view="products-view">Products</a>
+                    <a href="#" data-view="about-view">About Us</a>
+                    <a href="#" data-view="contact-view">Contact</a>
+                </div>
+            </div>
+        </header>
+        
+        <!-- ==================== CONTENEDOR DE VISTAS ==================== -->
+        <div id="views-container">
+            <main id="products-view" class="view hidden">
+                <div class="container">
+                    <h1 class="main-title">Products</h1>
+                    <div class="controls-container">
+                        <div class="filter-buttons-container"></div>
+                        <div class="sort-container"></div>
+                    </div>
+                    <div class="product-search-container">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" id="product-search-input" placeholder="Search for products">
+                    </div>
+                    <h2 class="section-subtitle">Featured Products</h2>
+                    <div class="product-grid"></div>
+                </div>
+            </main>
+            <div id="home-view" class="view active"><div class="container placeholder-view"><h1>Bienvenido a ShopSmart</h1><p>Navega a la sección de productos para empezar a comprar.</p></div></div>
+            <div id="about-view" class="view hidden"><div class="container placeholder-view"><h1>Sobre Nosotros</h1><p>Somos la mejor tienda falsa del mundo, construida para demostrar habilidades de desarrollo frontend.</p></div></div>
+            <div id="contact-view" class="view hidden"><div class="container placeholder-view"><h1>Contacto</h1><p>Encuéntranos en GitHub.</p></div></div>
+            <div id="checkout-view" class="view hidden">
+                <div class="container">
+                    <h1 class="main-title">Finalizar Compra</h1>
+                    <div class="checkout-layout">
+                        <div class="order-summary">
+                            <h3>Resumen de tu Pedido</h3>
+                            <div id="checkout-summary-items"></div>
+                            <div class="summary-total"><span>Total:</span><span id="checkout-total-price">$0.00</span></div>
+                        </div>
+                        <div class="payment-form-container">
+                            <h3>Información de Pago</h3>
+                            <div class="card-logos">
+                                <i class="fab fa-cc-visa card-logo" data-card="visa"></i>
+                                <i class="fab fa-cc-mastercard card-logo" data-card="mastercard"></i>
+                                <i class="fab fa-cc-amex card-logo" data-card="amex"></i>
+                            </div>
+                            <form id="payment-form">
+                                <div class="form-group">
+                                    <label for="card-name">Nombre en la Tarjeta</label>
+                                    <input type="text" id="card-name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-number">Número de Tarjeta</label>
+                                    <div class="card-number-wrapper">
+                                        <input type="text" id="card-number" placeholder="0000 0000 0000 0000" required>
+                                        <i id="card-type-icon" class="hidden"></i>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="expiry-date">Expiración</label>
+                                        <input type="text" id="expiry-date" placeholder="MM/YY" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="cvc">CVC</label>
+                                        <input type="text" id="cvc" placeholder="123" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="pay-btn">Pagar Ahora</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="success-view" class="view hidden">
+                <div class="container success-container">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <h2>¡Pago Realizado con Éxito!</h2>
+                    <p>Gracias por tu compra. Te hemos enviado un recibo a tu correo electrónico (simulado).</p>
+                    <button class="back-to-shop-btn" data-view="products-view">Volver a la Tienda</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="footer">
+             <div class="footer-links">
+                <a href="#">Terms of Service</a><a href="#">Privacy Policy</a><a href="#">Contact Us</a>
+            </div>
+            <p class="footer-copy">©2024 ShopSmart. All rights reserved.</p>
+        </footer>
+    </div>
+    <div class="cart-overlay"></div>
+    <aside class="cart-sidebar">
+        <header class="cart-header"><h3>Tu Carrito</h3><button class="close-cart-btn">×</button></header>
+        <div class="cart-items-container"></div>
+        <footer class="cart-footer">
+            <div class="cart-total"><span>Subtotal:</span><span id="cart-subtotal-price">$0.00</span></div>
+            <button class="checkout-btn">Finalizar Compra</button>
+        </footer>
+    </aside>
+    <div id="toast-container"></div>
+    <script src="/js/main-check.js"></script>
+</body>
+</html>
