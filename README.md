@@ -224,7 +224,7 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE](L
 ---
 
 <p align="center">
-  Developed with ❤️ by DanielSantiagoV<br>
+  Developed with ❤️ by DanielSantiagoVinascoamamuchoamp<br>
   🔥 <b><a href="https://github.com/DanielSantiagoV">Visit my GitHub</a></b> 🚀
 </p>
   📦 <b>Proyecto E-commerce ShopSmart</b> 🛒
