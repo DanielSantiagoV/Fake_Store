@@ -129,7 +129,7 @@ La maquetación inicial de ShopSmart se desarrolló siguiendo un proceso iterati
 ![Maquetación 2](./images/maquetacion-2.jpg)
 *Wireframe del carrito lateral que muestra la disposición de productos, controles de cantidad y total*
 
-#### 💳 Mockup del Checkout
+#### 💳 Mockup del Checkout 
 ![Maquetación 3](./images/maquetacion-3.jpg)
 *Mockup del proceso de checkout con formulario de pago y resumen del pedido*
 
