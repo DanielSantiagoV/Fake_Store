@@ -11,6 +11,18 @@
  * NO INCLUYE SISTEMA DE PAGO
  */
 
+// ==================== CONFIGURACIÓN GLOBAL ====================
+// URLs y configuraciones globales de la aplicación
+const CONFIG = {
+    API_URL: 'https://fakestoreapi.com/products',
+    TAX_RATE: 0.085, // 8.5% para demo
+    SKELETON_COUNT: 8,
+    TOAST_DURATION: {
+        MOBILE: 2500,
+        DESKTOP: 4000
+    }
+};
+
 // ==================== INICIO DE LA APLICACIÓN ====================
 // Este archivo contiene toda la lógica de la versión simple de ShopSmart (sin pagos)
 // Cada bloque y función está comentado en español para facilitar la comprensión.
@@ -120,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             appState.isLoading = true;
             showLoadingSkeletons(); // Muestra tarjetas de carga
-            const response = await fetch('https://fakestoreapi.com/products');
+            const response = await fetch(CONFIG.API_URL);
             if (!response.ok) {
                 throw new Error(`Error HTTP! status: ${response.status}`);
             }
@@ -135,17 +147,38 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('❌ Error al descargar productos:', error);
             if (document.querySelector('#products-view.active')) {
-                elements.productGrid.innerHTML = `
-                    <div class="error-message">
-                        <i class="fa-solid fa-exclamation-triangle"></i>
-                        <p>No se pudieron cargar los productos en este momento.</p>
-                        <button onclick="location.reload()" class="retry-btn">Intentar de nuevo</button>
-                    </div>
-                `;
+                showErrorMessage();
             }
         } finally {
             appState.isLoading = false;
         }
+    }
+
+    /**
+     * Muestra mensaje de error cuando falla la carga de productos
+     */
+    function showErrorMessage() {
+        clearElement(elements.productGrid);
+        
+        const errorContainer = document.createElement('div');
+        errorContainer.className = 'error-message';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-exclamation-triangle';
+        
+        const message = document.createElement('p');
+        message.textContent = 'No se pudieron cargar los productos en este momento.';
+        
+        const retryBtn = document.createElement('button');
+        retryBtn.className = 'retry-btn';
+        retryBtn.textContent = 'Intentar de nuevo';
+        retryBtn.onclick = () => location.reload();
+        
+        errorContainer.appendChild(icon);
+        errorContainer.appendChild(message);
+        errorContainer.appendChild(retryBtn);
+        
+        elements.productGrid.appendChild(errorContainer);
     }
 
     /**
@@ -155,23 +188,42 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderProducts(productsToRender) {
         console.log(`🎨 Mostrando ${productsToRender.length} productos...`);
         // Limpia la cuadrícula antes de mostrar
-        elements.productGrid.innerHTML = '';
+        clearElement(elements.productGrid);
+        
         // Si no hay productos, muestra mensaje de vacío
         if (productsToRender.length === 0) {
-            elements.productGrid.innerHTML = `
-                <div class="no-results-message">
-                    <i class="fa-solid fa-search"></i>
-                    <p>No se encontraron productos que coincidan con tu búsqueda.</p>
-                    <p>Prueba ajustando tu búsqueda o filtros.</p>
-                </div>
-            `;
+            showNoResultsMessage();
             return;
         }
+        
         // Crea las tarjetas de producto
         productsToRender.forEach(producto => {
             const productCard = createProductCard(producto);
             elements.productGrid.appendChild(productCard);
         });
+    }
+
+    /**
+     * Muestra mensaje cuando no hay resultados de búsqueda
+     */
+    function showNoResultsMessage() {
+        const noResultsContainer = document.createElement('div');
+        noResultsContainer.className = 'no-results-message';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-search';
+        
+        const message1 = document.createElement('p');
+        message1.textContent = 'No se encontraron productos que coincidan con tu búsqueda.';
+        
+        const message2 = document.createElement('p');
+        message2.textContent = 'Prueba ajustando tu búsqueda o filtros.';
+        
+        noResultsContainer.appendChild(icon);
+        noResultsContainer.appendChild(message1);
+        noResultsContainer.appendChild(message2);
+        
+        elements.productGrid.appendChild(noResultsContainer);
     }
 
     /**
@@ -187,20 +239,52 @@ document.addEventListener('DOMContentLoaded', () => {
             ? product.title.substring(0, 50) + '...' 
             : product.title;
         
-        card.innerHTML = `
-            <div class="product-image-container">
-                <img src="${product.image}" alt="${product.title}" loading="lazy">
-            </div>
-            <div class="product-info">
-                <p class="product-name">${truncatedTitle}</p>
-                <p class="product-category">${product.category}</p>
-                <p class="product-price">$${product.price.toFixed(2)}</p>
-                <button class="add-to-cart-btn" data-product-id="${product.id}">
-                    <i class="fa-solid fa-cart-plus"></i>
-                    Add to Cart
-                </button>
-            </div>
-        `;
+        // Crear contenedor de imagen
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'product-image-container';
+        
+        const image = document.createElement('img');
+        image.src = product.image;
+        image.alt = product.title;
+        image.loading = 'lazy';
+        
+        // Crear contenedor de información
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'product-info';
+        
+        const name = document.createElement('p');
+        name.className = 'product-name';
+        name.textContent = truncatedTitle;
+        
+        const category = document.createElement('p');
+        category.className = 'product-category';
+        category.textContent = product.category;
+        
+        const price = document.createElement('p');
+        price.className = 'product-price';
+        price.textContent = `$${product.price.toFixed(2)}`;
+        
+        const addButton = document.createElement('button');
+        addButton.className = 'add-to-cart-btn';
+        addButton.dataset.productId = product.id;
+        
+        const cartIcon = document.createElement('i');
+        cartIcon.className = 'fa-solid fa-cart-plus';
+        
+        const buttonText = document.createTextNode(' Add to Cart');
+        
+        // Ensamblar elementos
+        imageContainer.appendChild(image);
+        addButton.appendChild(cartIcon);
+        addButton.appendChild(buttonText);
+        
+        infoContainer.appendChild(name);
+        infoContainer.appendChild(category);
+        infoContainer.appendChild(price);
+        infoContainer.appendChild(addButton);
+        
+        card.appendChild(imageContainer);
+        card.appendChild(infoContainer);
         
         return card;
     }
@@ -212,23 +296,53 @@ document.addEventListener('DOMContentLoaded', () => {
     function showLoadingSkeletons() {
         console.log('⏳ Mostrando tarjetas de carga...');
         
-        elements.productGrid.innerHTML = '';
+        clearElement(elements.productGrid);
         
-        // Crea 8 tarjetas de carga
-        for (let i = 0; i < 8; i++) {
-            const skeletonCard = document.createElement('div');
-            skeletonCard.className = 'product-card skeleton-card';
-            skeletonCard.innerHTML = `
-                <div class="product-image-container skeleton"></div>
-                <div class="product-info">
-                    <p class="product-name skeleton" style="height: 40px; margin: 0 auto;"></p>
-                    <p class="product-category skeleton" style="width: 60%; height: 20px; margin: 8px auto;"></p>
-                    <p class="product-price skeleton" style="width: 40%; height: 30px; margin: 12px auto;"></p>
-                    <div class="add-to-cart-btn skeleton" style="height: 45px; margin-top: 16px;"></div>
-                </div>
-            `;
+        // Crea tarjetas de carga usando la constante global
+        for (let i = 0; i < CONFIG.SKELETON_COUNT; i++) {
+            const skeletonCard = createSkeletonCard();
             elements.productGrid.appendChild(skeletonCard);
         }
+    }
+
+    /**
+     * Crea una tarjeta de carga (skeleton)
+     */
+    function createSkeletonCard() {
+        const skeletonCard = document.createElement('div');
+        skeletonCard.className = 'product-card skeleton-card';
+        
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'product-image-container skeleton';
+        
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'product-info';
+        
+        const nameSkeleton = document.createElement('p');
+        nameSkeleton.className = 'product-name skeleton';
+        nameSkeleton.style.cssText = 'height: 40px; margin: 0 auto;';
+        
+        const categorySkeleton = document.createElement('p');
+        categorySkeleton.className = 'product-category skeleton';
+        categorySkeleton.style.cssText = 'width: 60%; height: 20px; margin: 8px auto;';
+        
+        const priceSkeleton = document.createElement('p');
+        priceSkeleton.className = 'product-price skeleton';
+        priceSkeleton.style.cssText = 'width: 40%; height: 30px; margin: 12px auto;';
+        
+        const buttonSkeleton = document.createElement('div');
+        buttonSkeleton.className = 'add-to-cart-btn skeleton';
+        buttonSkeleton.style.cssText = 'height: 45px; margin-top: 16px;';
+        
+        infoContainer.appendChild(nameSkeleton);
+        infoContainer.appendChild(categorySkeleton);
+        infoContainer.appendChild(priceSkeleton);
+        infoContainer.appendChild(buttonSkeleton);
+        
+        skeletonCard.appendChild(imageContainer);
+        skeletonCard.appendChild(infoContainer);
+        
+        return skeletonCard;
     }
 
     // ==================== SHOPPING CART FUNCTIONALITY ====================
@@ -297,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function updateCartUI() {
         // Limpia la interfaz de usuario actual del carrito
-        elements.cartItemsContainer.innerHTML = '';
+        clearElement(elements.cartItemsContainer);
         
         let subtotal = 0;
         let totalItems = 0;
@@ -305,13 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Maneja carrito vacío
         if (cartItems.length === 0) {
-            elements.cartItemsContainer.innerHTML = `
-                <div class="cart-empty-message">
-                    <i class="fa-solid fa-shopping-cart"></i>
-                    <p>Your cart is empty.</p>
-                    <p>Add some products to get started!</p>
-                </div>
-            `;
+            showEmptyCartMessage();
         } else {
             // Renderiza cada elemento del carrito
             cartItems.forEach(item => {
@@ -321,12 +429,58 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cartItemElement = createCartItemElement(item);
                 elements.cartItemsContainer.appendChild(cartItemElement);
             });
+            
+            // Agregar botón de vaciar carrito
+            const clearCartBtn = createClearCartButton();
+            elements.cartItemsContainer.appendChild(clearCartBtn);
         }
         
         // Actualiza resumen del carrito
         elements.cartSubtotalPrice.textContent = `$${subtotal.toFixed(2)}`;
         elements.cartItemCount.textContent = totalItems;
         elements.cartItemCount.style.display = totalItems > 0 ? 'flex' : 'none';
+    }
+
+    /**
+     * Muestra mensaje de carrito vacío
+     */
+    function showEmptyCartMessage() {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'cart-empty-message';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-shopping-cart';
+        
+        const message1 = document.createElement('p');
+        message1.textContent = 'Your cart is empty.';
+        
+        const message2 = document.createElement('p');
+        message2.textContent = 'Add some products to get started!';
+        
+        emptyMessage.appendChild(icon);
+        emptyMessage.appendChild(message1);
+        emptyMessage.appendChild(message2);
+        
+        elements.cartItemsContainer.appendChild(emptyMessage);
+    }
+
+    /**
+     * Crea botón para vaciar el carrito
+     */
+    function createClearCartButton() {
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'clear-cart-btn';
+        clearBtn.onclick = clearCart;
+        
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-trash-alt';
+        
+        const text = document.createTextNode(' Clear Cart');
+        
+        clearBtn.appendChild(icon);
+        clearBtn.appendChild(text);
+        
+        return clearBtn;
     }
 
     /**
@@ -337,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!elements.shoppingBagItems) return;
         
         // Limpia la interfaz de usuario actual de bolsa de compras
-        elements.shoppingBagItems.innerHTML = '';
+        clearElement(elements.shoppingBagItems);
         
         let subtotal = 0;
         let totalItems = 0;
@@ -345,17 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Maneja carrito vacío
         if (cartItems.length === 0) {
-            elements.shoppingBagItems.innerHTML = `
-                <div class="cart-empty-message">
-                    <i class="fa-solid fa-shopping-bag"></i>
-                    <h3>Your shopping bag is empty</h3>
-                    <p>Add some products to get started!</p>
-                    <button class="continue-shopping-btn" onclick="showView('products-view')">
-                        <i class="fa-solid fa-arrow-left"></i>
-                        Continue Shopping
-                    </button>
-                </div>
-            `;
+            showEmptyShoppingBagMessage();
         } else {
             // Renderiza cada elemento del carrito en formato de bolsa de compras
             cartItems.forEach(item => {
@@ -365,10 +509,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const shoppingBagItemElement = createShoppingBagItemElement(item);
                 elements.shoppingBagItems.appendChild(shoppingBagItemElement);
             });
+            
+            // Agregar botón de vaciar carrito en la bolsa de compras
+            const clearCartBtn = createClearCartButton();
+            elements.shoppingBagItems.appendChild(clearCartBtn);
         }
         
-        // Calcula impuesto (8.5% para demo)
-        const tax = subtotal * 0.085;
+        // Calcula impuesto usando la constante global
+        const tax = subtotal * CONFIG.TAX_RATE;
         const total = subtotal + tax;
         
         // Actualiza resumen de bolsa de compras
@@ -379,6 +527,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
+     * Muestra mensaje de bolsa de compras vacía
+     */
+    function showEmptyShoppingBagMessage() {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'cart-empty-message';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fa-solid fa-shopping-bag';
+        
+        const title = document.createElement('h3');
+        title.textContent = 'Your shopping bag is empty';
+        
+        const message = document.createElement('p');
+        message.textContent = 'Add some products to get started!';
+        
+        const continueBtn = document.createElement('button');
+        continueBtn.className = 'continue-shopping-btn';
+        continueBtn.onclick = () => showView('products-view');
+        
+        const btnIcon = document.createElement('i');
+        btnIcon.className = 'fa-solid fa-arrow-left';
+        
+        const btnText = document.createTextNode(' Continue Shopping');
+        
+        continueBtn.appendChild(btnIcon);
+        continueBtn.appendChild(btnText);
+        
+        emptyMessage.appendChild(icon);
+        emptyMessage.appendChild(title);
+        emptyMessage.appendChild(message);
+        emptyMessage.appendChild(continueBtn);
+        
+        elements.shoppingBagItems.appendChild(emptyMessage);
+    }
+
+    /**
      * Crea un solo elemento de carrito
      * Maneja visualización y control de elementos del carrito
      */
@@ -386,28 +570,80 @@ document.addEventListener('DOMContentLoaded', () => {
         const element = document.createElement('div');
         element.className = 'cart-item';
         
-        element.innerHTML = `
-            <img src="${item.image}" alt="${item.title}" class="cart-item-img">
-            <div class="cart-item-info">
-                <p class="cart-item-title">${item.title}</p>
-                <p class="cart-item-price">$${item.price.toFixed(2)}</p>
-                <div class="cart-item-controls">
-                    <div class="quantity-controls">
-                        <button class="quantity-btn" data-id="${item.id}" data-action="decrease">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
-                        <span class="quantity-display">${item.quantity}</span>
-                        <button class="quantity-btn" data-id="${item.id}" data-action="increase">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                    <button class="remove-item-btn" data-id="${item.id}">
-                        <i class="fa-solid fa-trash"></i>
-                        Remove
-                    </button>
-                </div>
-            </div>
-        `;
+        // Crear imagen
+        const image = document.createElement('img');
+        image.src = item.image;
+        image.alt = item.title;
+        image.className = 'cart-item-img';
+        
+        // Crear contenedor de información
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'cart-item-info';
+        
+        const title = document.createElement('p');
+        title.className = 'cart-item-title';
+        title.textContent = item.title;
+        
+        const price = document.createElement('p');
+        price.className = 'cart-item-price';
+        price.textContent = `$${item.price.toFixed(2)}`;
+        
+        const controlsContainer = document.createElement('div');
+        controlsContainer.className = 'cart-item-controls';
+        
+        // Crear controles de cantidad
+        const quantityControls = document.createElement('div');
+        quantityControls.className = 'quantity-controls';
+        
+        const decreaseBtn = document.createElement('button');
+        decreaseBtn.className = 'quantity-btn';
+        decreaseBtn.dataset.id = item.id;
+        decreaseBtn.dataset.action = 'decrease';
+        
+        const decreaseIcon = document.createElement('i');
+        decreaseIcon.className = 'fa-solid fa-minus';
+        
+        const quantityDisplay = document.createElement('span');
+        quantityDisplay.className = 'quantity-display';
+        quantityDisplay.textContent = item.quantity;
+        
+        const increaseBtn = document.createElement('button');
+        increaseBtn.className = 'quantity-btn';
+        increaseBtn.dataset.id = item.id;
+        increaseBtn.dataset.action = 'increase';
+        
+        const increaseIcon = document.createElement('i');
+        increaseIcon.className = 'fa-solid fa-plus';
+        
+        // Crear botón de eliminar
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-item-btn';
+        removeBtn.dataset.id = item.id;
+        
+        const removeIcon = document.createElement('i');
+        removeIcon.className = 'fa-solid fa-trash';
+        
+        const removeText = document.createTextNode(' Remove');
+        
+        // Ensamblar elementos
+        decreaseBtn.appendChild(decreaseIcon);
+        increaseBtn.appendChild(increaseIcon);
+        removeBtn.appendChild(removeIcon);
+        removeBtn.appendChild(removeText);
+        
+        quantityControls.appendChild(decreaseBtn);
+        quantityControls.appendChild(quantityDisplay);
+        quantityControls.appendChild(increaseBtn);
+        
+        controlsContainer.appendChild(quantityControls);
+        controlsContainer.appendChild(removeBtn);
+        
+        infoContainer.appendChild(title);
+        infoContainer.appendChild(price);
+        infoContainer.appendChild(controlsContainer);
+        
+        element.appendChild(image);
+        element.appendChild(infoContainer);
         
         return element;
     }
@@ -420,29 +656,85 @@ document.addEventListener('DOMContentLoaded', () => {
         const element = document.createElement('div');
         element.className = 'cart-item';
         
-        element.innerHTML = `
-            <img src="${item.image}" alt="${item.title}" class="cart-item-img">
-            <div class="cart-item-info">
-                <p class="cart-item-title">${item.title}</p>
-                <p class="cart-item-attributes">Category: ${item.category}</p>
-                <p class="cart-item-price">$${item.price.toFixed(2)}</p>
-                <div class="cart-item-controls">
-                    <div class="quantity-controls">
-                        <button class="quantity-btn" data-id="${item.id}" data-action="decrease">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
-                        <span class="quantity-display">${item.quantity}</span>
-                        <button class="quantity-btn" data-id="${item.id}" data-action="increase">
-                            <i class="fa-solid fa-plus"></i>
-                        </button>
-                    </div>
-                    <button class="remove-item-btn" data-id="${item.id}">
-                        <i class="fa-solid fa-trash"></i>
-                        Remove
-                    </button>
-                </div>
-            </div>
-        `;
+        // Crear imagen
+        const image = document.createElement('img');
+        image.src = item.image;
+        image.alt = item.title;
+        image.className = 'cart-item-img';
+        
+        // Crear contenedor de información
+        const infoContainer = document.createElement('div');
+        infoContainer.className = 'cart-item-info';
+        
+        const title = document.createElement('p');
+        title.className = 'cart-item-title';
+        title.textContent = item.title;
+        
+        const attributes = document.createElement('p');
+        attributes.className = 'cart-item-attributes';
+        attributes.textContent = `Category: ${item.category}`;
+        
+        const price = document.createElement('p');
+        price.className = 'cart-item-price';
+        price.textContent = `$${item.price.toFixed(2)}`;
+        
+        const controlsContainer = document.createElement('div');
+        controlsContainer.className = 'cart-item-controls';
+        
+        // Crear controles de cantidad
+        const quantityControls = document.createElement('div');
+        quantityControls.className = 'quantity-controls';
+        
+        const decreaseBtn = document.createElement('button');
+        decreaseBtn.className = 'quantity-btn';
+        decreaseBtn.dataset.id = item.id;
+        decreaseBtn.dataset.action = 'decrease';
+        
+        const decreaseIcon = document.createElement('i');
+        decreaseIcon.className = 'fa-solid fa-minus';
+        
+        const quantityDisplay = document.createElement('span');
+        quantityDisplay.className = 'quantity-display';
+        quantityDisplay.textContent = item.quantity;
+        
+        const increaseBtn = document.createElement('button');
+        increaseBtn.className = 'quantity-btn';
+        increaseBtn.dataset.id = item.id;
+        increaseBtn.dataset.action = 'increase';
+        
+        const increaseIcon = document.createElement('i');
+        increaseIcon.className = 'fa-solid fa-plus';
+        
+        // Crear botón de eliminar
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'remove-item-btn';
+        removeBtn.dataset.id = item.id;
+        
+        const removeIcon = document.createElement('i');
+        removeIcon.className = 'fa-solid fa-trash';
+        
+        const removeText = document.createTextNode(' Remove');
+        
+        // Ensamblar elementos
+        decreaseBtn.appendChild(decreaseIcon);
+        increaseBtn.appendChild(increaseIcon);
+        removeBtn.appendChild(removeIcon);
+        removeBtn.appendChild(removeText);
+        
+        quantityControls.appendChild(decreaseBtn);
+        quantityControls.appendChild(quantityDisplay);
+        quantityControls.appendChild(increaseBtn);
+        
+        controlsContainer.appendChild(quantityControls);
+        controlsContainer.appendChild(removeBtn);
+        
+        infoContainer.appendChild(title);
+        infoContainer.appendChild(attributes);
+        infoContainer.appendChild(price);
+        infoContainer.appendChild(controlsContainer);
+        
+        element.appendChild(image);
+        element.appendChild(infoContainer);
         
         return element;
     }
@@ -452,6 +744,11 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function clearCart() {
         const itemCount = Object.keys(appState.cart).length;
+        if (itemCount === 0) {
+            showDemoMessage('Cart is already empty!', 'info');
+            return;
+        }
+        
         appState.cart = {};
         updateAndSaveCart();
         showDemoMessage(`Cart cleared! Removed ${itemCount} items`, 'cart');
@@ -538,24 +835,41 @@ document.addEventListener('DOMContentLoaded', () => {
         // Obtén categorías únicas de productos
         const categories = ['all', ...new Set(appState.allProducts.map(p => p.category))];
         
+        // Limpia contenedor de filtros
+        clearElement(elements.filterButtonsContainer);
+        
         // Crea botones de filtro
-        elements.filterButtonsContainer.innerHTML = categories.map(category => `
-            <button class="filter-btn ${category === appState.activeCategory ? 'active' : ''}" 
-                    data-category="${category}">
-                ${category.charAt(0).toUpperCase() + category.slice(1)}
-            </button>
-        `).join('');
+        categories.forEach(category => {
+            const filterBtn = document.createElement('button');
+            filterBtn.className = `filter-btn ${category === appState.activeCategory ? 'active' : ''}`;
+            filterBtn.dataset.category = category;
+            filterBtn.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+            elements.filterButtonsContainer.appendChild(filterBtn);
+        });
+        
+        // Limpia contenedor de ordenamiento
+        clearElement(elements.sortContainer);
         
         // Crea menú de ordenación
-        elements.sortContainer.innerHTML = `
-            <select id="sort-filter">
-                <option value="default">Sort by</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="name-asc">Name: A-Z</option>
-                <option value="name-desc">Name: Z-A</option>
-            </select>
-        `;
+        const sortSelect = document.createElement('select');
+        sortSelect.id = 'sort-filter';
+        
+        const options = [
+            { value: 'default', text: 'Sort by' },
+            { value: 'price-asc', text: 'Price: Low to High' },
+            { value: 'price-desc', text: 'Price: High to Low' },
+            { value: 'name-asc', text: 'Name: A-Z' },
+            { value: 'name-desc', text: 'Name: Z-A' }
+        ];
+        
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.value;
+            optionElement.textContent = option.text;
+            sortSelect.appendChild(optionElement);
+        });
+        
+        elements.sortContainer.appendChild(sortSelect);
     }
 
     /**
@@ -657,6 +971,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ==================== UTILITIES AND UX ENHANCEMENTS ====================
     /**
+     * Limpia un elemento del DOM de forma segura
+     */
+    function clearElement(element) {
+        if (element) {
+            element.innerHTML = '';
+        }
+    }
+
+    /**
      * Muestra un mensaje de demostración con estilo mejorado y emojis
      * Proporciona retroalimentación rica para interacciones de usuario
      */
@@ -685,12 +1008,22 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         
         const emoji = emojis[type] || 'ℹ️';
-        toast.innerHTML = `<span class="toast-emoji">${emoji}</span> <span class="toast-text">${message}</span>`;
+        
+        const emojiSpan = document.createElement('span');
+        emojiSpan.className = 'toast-emoji';
+        emojiSpan.textContent = emoji;
+        
+        const textSpan = document.createElement('span');
+        textSpan.className = 'toast-text';
+        textSpan.textContent = message;
+        
+        toast.appendChild(emojiSpan);
+        toast.appendChild(textSpan);
         
         toastContainer.appendChild(toast);
         
         // Duración más corta en móvil para experiencia menos intrusiva
-        const duration = isMobile ? 2500 : 4000;
+        const duration = isMobile ? CONFIG.TOAST_DURATION.MOBILE : CONFIG.TOAST_DURATION.DESKTOP;
         
         // Elimina toast después de duración específica
         setTimeout(() => {
