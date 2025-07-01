@@ -347,95 +347,201 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ==================== SHOPPING CART FUNCTIONALITY ====================
     /**
-     * Agrega un producto al carrito de compras
-     * Maneja incrementos de cantidad para elementos existentes
+     * FUNCIÓN: addToCart(productId)
+     * 
+     * DESCRIPCIÓN:
+     * Agrega un producto al carrito de compras o incrementa su cantidad si ya existe.
+     * Esta es la función principal para agregar productos al carrito desde la vista de productos.
+     * 
+     * PARÁMETROS:
+     * - productId: ID único del producto a agregar (number/string)
+     * 
+     * FUNCIONALIDAD:
+     * 1. Busca el producto en la lista completa de productos
+     * 2. Valida que el producto exista
+     * 3. Si el producto ya está en el carrito, incrementa la cantidad
+     * 4. Si es nuevo, lo agrega con cantidad inicial de 1
+     * 5. Muestra notificación al usuario
+     * 6. Actualiza la interfaz y guarda en localStorage
+     * 
+     * FLUJO DE DATOS:
+     * Producto seleccionado → Validación → Actualización del carrito → UI Update → Persistencia
      */
     function addToCart(productId) {
+        // Busca el producto en la lista completa de productos disponibles
         const product = appState.allProducts.find(prod => prod.id == productId);
         
+        // VALIDACIÓN: Verifica que el producto exista antes de continuar
         if (!product) {
             console.error('❌ Producto no encontrado:', productId);
             showDemoMessage('Producto no encontrado. Por favor, intenta nuevamente.', 'error');
-            return;
+            return; // Sale de la función si no encuentra el producto
         }
         
-        // Verifica si el producto ya está en el carrito
+        // LÓGICA PRINCIPAL: Maneja productos existentes vs nuevos
         if (appState.cart[productId]) {
+            // CASO 1: Producto ya existe en el carrito → Incrementa cantidad
             appState.cart[productId].quantity++;
             showDemoMessage(`Increased quantity of "${product.title.substring(0, 25)}..."`, 'cart');
             console.log(`🛒 Increased quantity of ${product.title} in cart`);
         } else {
+            // CASO 2: Producto nuevo → Lo agrega con cantidad inicial de 1
             appState.cart[productId] = { ...product, quantity: 1 };
             showDemoMessage(`"${product.title.substring(0, 25)}..." added to cart!`, 'cart');
             console.log(`🛒 Added ${product.title} to cart`);
         }
         
+        // ACTUALIZACIÓN: Refresca la interfaz y guarda los cambios
         updateAndSaveCart();
     }
 
     /**
-     * Actualiza la cantidad de un elemento en el carrito
-     * Elimina el elemento si la cantidad se vuelve 0
+     * FUNCIÓN: updateItemQuantity(productId, newQuantity)
+     * 
+     * DESCRIPCIÓN:
+     * Actualiza la cantidad de un producto específico en el carrito.
+     * Si la nueva cantidad es 0, elimina completamente el producto del carrito.
+     * Esta función se usa desde los controles de cantidad en el carrito y bolsa de compras.
+     * 
+     * PARÁMETROS:
+     * - productId: ID del producto a actualizar (number/string)
+     * - newQuantity: Nueva cantidad deseada (number)
+     * 
+     * FUNCIONALIDAD:
+     * 1. Valida que el producto exista en el carrito
+     * 2. Si newQuantity > 0: Actualiza la cantidad
+     * 3. Si newQuantity = 0: Elimina el producto completamente
+     * 4. Muestra notificación al usuario
+     * 5. Actualiza la interfaz y persiste los cambios
+     * 
+     * CASOS DE USO:
+     * - Botones +/- en el carrito
+     * - Botón "Remove" individual
+     * - Ajustes de cantidad en bolsa de compras
+     * 
+     * FLUJO DE DATOS:
+     * Nueva cantidad → Validación → Actualización/Eliminación → UI Update → Persistencia
      */
     function updateItemQuantity(productId, newQuantity) {
+        // VALIDACIÓN: Verifica que el producto exista en el carrito
         if (!appState.cart[productId]) return;
         
+        // Obtiene el nombre del producto para mostrar en mensajes (truncado a 25 caracteres)
         const productName = appState.cart[productId].title.substring(0, 25) + '...';
         
+        // LÓGICA PRINCIPAL: Maneja actualización vs eliminación
         if (newQuantity > 0) {
+            // CASO 1: Cantidad válida → Actualiza la cantidad
             appState.cart[productId].quantity = newQuantity;
             showDemoMessage(`Updated quantity of "${productName}"`, 'cart');
             console.log(`🛒 Updated quantity of ${productName} to ${newQuantity}`);
         } else {
+            // CASO 2: Cantidad 0 → Elimina el producto completamente
             delete appState.cart[productId];
             showDemoMessage(`"${productName}" removed from cart`, 'cart');
             console.log(`🗑️ Removed ${productName} from cart`);
         }
         
+        // ACTUALIZACIÓN: Refresca la interfaz y guarda los cambios
         updateAndSaveCart();
     }
 
     /**
-     * Actualiza la interfaz de usuario del carrito y guarda en localStorage
-     * Función central para el estado del carrito
+     * FUNCIÓN: updateAndSaveCart()
+     * 
+     * DESCRIPCIÓN:
+     * Función central que coordina todas las actualizaciones relacionadas con el carrito.
+     * Se ejecuta cada vez que hay cambios en el carrito para mantener sincronizadas
+     * todas las vistas y persistir los datos.
+     * 
+     * FUNCIONALIDAD:
+     * 1. Actualiza la interfaz del carrito lateral (sidebar)
+     * 2. Actualiza la vista de bolsa de compras (si está activa)
+     * 3. Guarda los datos en localStorage para persistencia
+     * 
+     * PATRÓN DE DISEÑO:
+     * Esta función implementa el patrón "Observer" donde múltiples vistas
+     * se actualizan automáticamente cuando cambia el estado del carrito.
+     * 
+     * FLUJO DE EJECUCIÓN:
+     * Cambio en carrito → updateCartUI() → updateShoppingBagUI() → saveCartToLocalStorage()
+     * 
+     * IMPORTANCIA:
+     * Es la función más llamada en la aplicación, ya que cualquier modificación
+     * del carrito debe reflejarse en todas las vistas y persistirse.
      */
     function updateAndSaveCart() {
+        // ACTUALIZA: La interfaz del carrito lateral (sidebar)
         updateCartUI();
+        
+        // ACTUALIZA: La vista de bolsa de compras (si está activa)
         updateShoppingBagUI();
+        
+        // PERSISTE: Los datos en localStorage para mantenerlos entre sesiones
         saveCartToLocalStorage();
     }
 
     /**
-     * Actualiza la representación visual del carrito
-     * Maneja estado de carrito vacío y visualización de elementos
+     * FUNCIÓN: updateCartUI()
+     * 
+     * DESCRIPCIÓN:
+     * Actualiza la interfaz visual del carrito lateral (sidebar).
+     * Renderiza todos los productos del carrito, calcula totales y maneja
+     * el estado de carrito vacío. Es la función principal para mostrar
+     * el contenido del carrito en tiempo real.
+     * 
+     * FUNCIONALIDAD:
+     * 1. Limpia el contenedor del carrito
+     * 2. Calcula subtotal y número total de items
+     * 3. Maneja estado de carrito vacío vs con productos
+     * 4. Renderiza cada producto del carrito
+     * 5. Agrega botón de "Clear Cart" si hay productos
+     * 6. Actualiza contadores y precios en el header
+     * 
+     * ELEMENTOS QUE ACTUALIZA:
+     * - Contenedor de items del carrito (cart-items-container)
+     * - Subtotal en el footer del carrito
+     * - Contador de items en el botón del header
+     * - Visibilidad del contador de items
+     * 
+     * FLUJO DE RENDERIZADO:
+     * Limpiar → Calcular → Renderizar Items → Agregar Botón Clear → Actualizar Totales
+     * 
+     * ESTADOS MANEJADOS:
+     * - Carrito vacío: Muestra mensaje de carrito vacío
+     * - Carrito con productos: Muestra lista de productos + botón clear
      */
     function updateCartUI() {
-        // Limpia la interfaz de usuario actual del carrito
+        // LIMPIA: El contenedor del carrito para re-renderizar
         clearElement(elements.cartItemsContainer);
         
+        // INICIALIZA: Variables para cálculos de totales
         let subtotal = 0;
         let totalItems = 0;
         const cartItems = Object.values(appState.cart);
         
-        // Maneja carrito vacío
+        // LÓGICA PRINCIPAL: Maneja carrito vacío vs con productos
         if (cartItems.length === 0) {
+            // ESTADO: Carrito vacío → Muestra mensaje informativo
             showEmptyCartMessage();
         } else {
-            // Renderiza cada elemento del carrito
+            // ESTADO: Carrito con productos → Renderiza cada item
             cartItems.forEach(item => {
+                // CALCULA: Subtotal y total de items
                 subtotal += item.price * item.quantity;
                 totalItems += item.quantity;
                 
+                // RENDERIZA: Crea y agrega el elemento del producto
                 const cartItemElement = createCartItemElement(item);
                 elements.cartItemsContainer.appendChild(cartItemElement);
             });
             
-            // Agregar botón de vaciar carrito
+            // AGREGA: Botón para vaciar todo el carrito
             const clearCartBtn = createClearCartButton();
             elements.cartItemsContainer.appendChild(clearCartBtn);
         }
         
-        // Actualiza resumen del carrito
+        // ACTUALIZA: Resumen y contadores en la interfaz
         elements.cartSubtotalPrice.textContent = `$${subtotal.toFixed(2)}`;
         elements.cartItemCount.textContent = totalItems;
         elements.cartItemCount.style.display = totalItems > 0 ? 'flex' : 'none';
@@ -740,49 +846,167 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * Limpia todos los elementos del carrito
+     * FUNCIÓN: clearCart()
+     * 
+     * DESCRIPCIÓN:
+     * Elimina todos los productos del carrito de compras de una sola vez.
+     * Esta función se ejecuta cuando el usuario hace clic en el botón "Clear Cart"
+     * que aparece tanto en el carrito lateral como en la bolsa de compras.
+     * 
+     * FUNCIONALIDAD:
+     * 1. Verifica si el carrito ya está vacío
+     * 2. Si no está vacío, elimina todos los productos
+     * 3. Actualiza la interfaz automáticamente
+     * 4. Muestra notificación al usuario
+     * 5. Registra la acción en la consola
+     * 
+     * CASOS DE USO:
+     * - Botón "Clear Cart" en el carrito lateral
+     * - Botón "Clear Cart" en la bolsa de compras
+     * - Funcionalidad de "Vaciar carrito" completa
+     * 
+     * FLUJO DE EJECUCIÓN:
+     * Verificación → Limpieza → Actualización UI → Notificación → Logging
+     * 
+     * IMPORTANCIA:
+     * Proporciona una forma rápida de resetear completamente el carrito
+     * sin tener que eliminar productos uno por uno.
+     * 
+     * SEGURIDAD:
+     * Incluye validación para evitar operaciones innecesarias si el carrito
+     * ya está vacío.
      */
     function clearCart() {
+        // OBTIENE: El número de productos actuales en el carrito
         const itemCount = Object.keys(appState.cart).length;
+        
+        // VALIDACIÓN: Verifica si el carrito ya está vacío
         if (itemCount === 0) {
             showDemoMessage('Cart is already empty!', 'info');
-            return;
+            return; // Sale de la función si no hay nada que limpiar
         }
         
+        // LIMPIA: Elimina todos los productos del carrito
         appState.cart = {};
+        
+        // ACTUALIZA: Refresca todas las vistas y persiste los cambios
         updateAndSaveCart();
+        
+        // NOTIFICA: Informa al usuario sobre la acción realizada
         showDemoMessage(`Cart cleared! Removed ${itemCount} items`, 'cart');
+        
+        // REGISTRA: La acción en la consola para debugging
         console.log(`🗑️ Cart cleared - removed ${itemCount} items`);
     }
 
     /**
-     * Guarda datos del carrito en localStorage para persistencia
+     * FUNCIÓN: saveCartToLocalStorage()
+     * 
+     * DESCRIPCIÓN:
+     * Guarda el estado actual del carrito en el localStorage del navegador.
+     * Esto permite que los productos del carrito persistan entre sesiones,
+     * manteniendo la información del usuario incluso si cierra y reabre el navegador.
+     * 
+     * FUNCIONALIDAD:
+     * 1. Convierte el objeto del carrito a formato JSON
+     * 2. Almacena los datos en localStorage con la clave 'shoppingCart'
+     * 3. Maneja errores de almacenamiento
+     * 4. Registra el éxito o fallo de la operación
+     * 
+     * IMPORTANCIA:
+     * - Persistencia de datos entre sesiones
+     - Mejora la experiencia del usuario
+     * - Evita pérdida de productos seleccionados
+     * 
+     * MANEJO DE ERRORES:
+     * - Captura errores de localStorage (cuota excedida, modo privado, etc.)
+     * - Muestra notificación al usuario si falla
+     * - Registra errores en consola para debugging
+     * 
+     * FLUJO DE DATOS:
+     * Carrito en memoria → JSON.stringify() → localStorage.setItem() → Persistencia
+     * 
+     * SEGURIDAD:
+     * Usa try-catch para manejar errores de almacenamiento de forma segura.
      */
     function saveCartToLocalStorage() {
         try {
-            localStorage.setItem('shoppingCart', JSON.stringify(appState.cart));
+            // CONVIERTE: El objeto del carrito a formato JSON para almacenamiento
+            const cartData = JSON.stringify(appState.cart);
+            
+            // ALMACENA: Los datos en localStorage con clave específica
+            localStorage.setItem('shoppingCart', cartData);
+            
+            // REGISTRA: Éxito de la operación en consola
             console.log('💾 Cart saved to localStorage');
         } catch (error) {
+            // MANEJA: Errores de almacenamiento (cuota excedida, modo privado, etc.)
             console.error('❌ Error saving cart to localStorage:', error);
             showDemoMessage('Failed to save cart data', 'error');
         }
     }
 
     /**
-     * Carga datos del carrito desde localStorage en inicio de aplicación
+     * FUNCIÓN: loadCartFromLocalStorage()
+     * 
+     * DESCRIPCIÓN:
+     * Carga los datos del carrito guardados previamente en localStorage.
+     * Se ejecuta al inicio de la aplicación para restaurar el estado del carrito
+     * de sesiones anteriores, proporcionando continuidad en la experiencia del usuario.
+     * 
+     * FUNCIONALIDAD:
+     * 1. Recupera datos del carrito desde localStorage
+     * 2. Parsea los datos JSON a objeto JavaScript
+     * 3. Restaura el estado del carrito en la aplicación
+     * 4. Maneja casos donde no hay datos guardados
+     * 5. Informa al usuario sobre productos recuperados
+     * 6. Maneja errores de carga de datos
+     * 
+     * MOMENTO DE EJECUCIÓN:
+     * Se llama durante la inicialización de la aplicación (initializeApplication)
+     * para restaurar el estado del carrito antes de mostrar la interfaz.
+     * 
+     * CASOS MANEJADOS:
+     * - Carrito con productos guardados → Restaura productos
+     * - Sin datos guardados → Inicializa carrito vacío
+     * - Error en datos corruptos → Reinicia carrito vacío
+     * 
+     * FLUJO DE DATOS:
+     * localStorage.getItem() → JSON.parse() → appState.cart → Notificación usuario
+     * 
+     * IMPORTANCIA:
+     * Proporciona persistencia de datos y mejora significativamente la UX
+     * al mantener los productos seleccionados entre sesiones.
+     * 
+     * SEGURIDAD:
+     * Usa try-catch para manejar errores de parsing JSON y datos corruptos.
      */
     function loadCartFromLocalStorage() {
         try {
+            // RECUPERA: Los datos del carrito desde localStorage
             const savedCart = localStorage.getItem('shoppingCart');
+            
+            // RESTAURA: El estado del carrito (parsea JSON o usa objeto vacío)
             appState.cart = savedCart ? JSON.parse(savedCart) : {};
+            
+            // CALCULA: El número de productos recuperados
             const itemCount = Object.keys(appState.cart).length;
+            
+            // REGISTRA: La operación en consola
             console.log(`📦 Cart loaded from localStorage - ${itemCount} items`);
+            
+            // NOTIFICA: Al usuario si se recuperaron productos
             if (itemCount > 0) {
                 showDemoMessage(`Loaded ${itemCount} items from previous session`, 'info');
             }
         } catch (error) {
+            // MANEJA: Errores de parsing JSON o datos corruptos
             console.error('❌ Error loading cart from localStorage:', error);
+            
+            // REINICIA: El carrito a estado vacío en caso de error
             appState.cart = {};
+            
+            // INFORMA: Al usuario sobre el problema
             showDemoMessage('Failed to load previous cart data', 'warning');
         }
     }
