@@ -1116,3 +1116,43 @@ a, button {
         font-size: 0.9rem;
     }
 }
+
+/* Estilo para el nuevo botón de vaciar carrito */
+.clear-cart-btn {
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 10px; /* Espacio entre este y el botón "Ver Bolsa" */
+    background-color: #e74c3c; /* Un color rojo para indicar una acción destructiva */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.clear-cart-btn:hover {
+    background-color: #c0392b; /* Rojo más oscuro al pasar el ratón */
+}
+
+/* Opcional: añadir un icono de papelera al botón */
+.clear-cart-btn::before {
+    content: '\f2ed'; /* Código de icono de Font Awesome para una papelera */
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+}
+
+/* Para ocultar el pie de página del carrito cuando está vacío */
+.cart-footer.hidden {
+    display: none;
+}
+
+/* Arreglo para el menú móvil refactorizado */
+#mobile-menu.show {
+    display: block; /* o 'flex' si usas flexbox para los items del menú */
+}
