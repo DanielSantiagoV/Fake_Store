@@ -166,5 +166,19 @@
             
             <div id="toast-container"></div>
             <script src="js/main.js"></script>
+
+            <!-- Botón para abrir favoritos (puede ir en el header o cerca del catálogo) -->
+            <button id="open-favorites-btn" class="favorites-btn" title="Ver Favoritos">
+                <i class="fa-solid fa-heart"></i> Favoritos
+            </button>
+
+            <!-- Modal de Favoritos -->
+            <div id="favorites-modal" class="favorites-modal hidden">
+                <div class="favorites-modal-content">
+                    <span class="close-favorites-modal">&times;</span>
+                    <h2>Mis Favoritos</h2>
+                    <div id="favorites-list" class="favorites-list"></div>
+                </div>
+            </div>
         </body>
         </html> 

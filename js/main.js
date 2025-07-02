@@ -85,6 +85,130 @@ document.addEventListener('DOMContentLoaded', () => {
         continueShoppingBtn: document.getElementById('continue-shopping-btn') // Botón para seguir comprando
     };
 
+    // ==================== FAVORITOS PERSISTENTES ====================
+    /**
+     * Estado global de favoritos: almacena los IDs de productos favoritos
+     */
+    let favorites = [];
+
+    /**
+     * Cargar favoritos desde localStorage
+     */
+    function loadFavoritesFromLocalStorage() {
+        try {
+            const favs = localStorage.getItem('favorites');
+            favorites = favs ? JSON.parse(favs) : [];
+        } catch (e) {
+            favorites = [];
+        }
+    }
+
+    /**
+     * Guardar favoritos en localStorage
+     */
+    function saveFavoritesToLocalStorage() {
+        localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+
+    /**
+     * Alternar favorito (agregar o quitar)
+     */
+    function toggleFavorite(productId) {
+        const idx = favorites.indexOf(productId);
+        if (idx === -1) {
+            favorites.push(productId);
+        } else {
+            favorites.splice(idx, 1);
+        }
+        saveFavoritesToLocalStorage();
+        // Refresca productos y favoritos
+        renderProducts(appState.allProducts);
+        renderFavoritesModal();
+    }
+
+    /**
+     * Verifica si un producto es favorito
+     */
+    function isFavorite(productId) {
+        return favorites.includes(productId);
+    }
+
+    /**
+     * Renderiza los productos favoritos en el modal
+     */
+    function renderFavoritesModal() {
+        const favList = document.getElementById('favorites-list');
+        favList.innerHTML = '';
+        if (favorites.length === 0) {
+            favList.innerHTML = '<p>No tienes productos favoritos aún.</p>';
+            return;
+        }
+        const favProducts = appState.allProducts.filter(p => favorites.includes(p.id));
+        favProducts.forEach(product => {
+            const card = document.createElement('div');
+            card.className = 'favorite-card';
+            const img = document.createElement('img');
+            img.src = product.image;
+            img.alt = product.title;
+            const name = document.createElement('div');
+            name.className = 'product-name';
+            name.textContent = product.title;
+            const price = document.createElement('div');
+            price.className = 'product-price';
+            price.textContent = `$${product.price.toFixed(2)}`;
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-favorite-btn';
+            removeBtn.innerHTML = '<i class="fa-solid fa-trash"></i> Quitar';
+            removeBtn.onclick = () => toggleFavorite(product.id);
+            card.appendChild(img);
+            card.appendChild(name);
+            card.appendChild(price);
+            card.appendChild(removeBtn);
+            favList.appendChild(card);
+        });
+    }
+
+    /**
+     * Modificar createProductCard para incluir botón de favorito
+     */
+    const originalCreateProductCard = createProductCard;
+    createProductCard = function(product) {
+        const card = originalCreateProductCard(product);
+        // Botón de favorito
+        const favBtn = document.createElement('button');
+        favBtn.className = 'favorite-icon' + (isFavorite(product.id) ? ' favorited' : '');
+        favBtn.title = isFavorite(product.id) ? 'Quitar de favoritos' : 'Agregar a favoritos';
+        favBtn.innerHTML = isFavorite(product.id)
+            ? '<i class="fa-solid fa-heart"></i>'
+            : '<i class="fa-regular fa-heart"></i>';
+        favBtn.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(product.id);
+        };
+        card.style.position = 'relative';
+        card.appendChild(favBtn);
+        return card;
+    };
+
+    /**
+     * Eventos para abrir/cerrar modal de favoritos
+     */
+    function setupFavoritesModalEvents() {
+        const openBtn = document.getElementById('open-favorites-btn');
+        const modal = document.getElementById('favorites-modal');
+        const closeBtn = document.querySelector('.close-favorites-modal');
+        openBtn.addEventListener('click', () => {
+            renderFavoritesModal();
+            modal.classList.remove('hidden');
+        });
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.add('hidden');
+        });
+    }
+
     // ==================== INICIALIZACIÓN DE LA APLICACIÓN ====================
     /**
      * Función principal de inicialización
@@ -116,6 +240,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 showDemoMessage('¡Listo para comprar! Explora nuestros productos 🎉', 'success');
             }, 1000);
+            loadFavoritesFromLocalStorage();
+            setupFavoritesModalEvents();
         } catch (error) {
             console.error('❌ Error al inicializar la aplicación:', error);
             showDemoMessage('Error al inicializar la aplicación. Por favor, recarga la página.', 'error');
